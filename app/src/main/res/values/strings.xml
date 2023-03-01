@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">AudioRecorder1</string>
+    <string name="recording_button_description">Кнопка для начала записи</string>
+
+    <string name="toast_cant_recording">Не получается начать запись :(</string>
+    <string name="toast_to_stop_recording">Сначала остановите запись</string>
+
+</resources>
