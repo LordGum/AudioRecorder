@@ -1,12 +1,18 @@
 package com.example.audiorecorder1;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.Adapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -17,15 +23,21 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     private FloatingActionButton RecordingButton;
+    private TextView NoRecordsText;
     private RecyclerView recyclerRecords;
+    private com.example.audiorecorder1.ForRecyclerView.Adapter adapter;
     private List<File> fileList;
-
-    boolean isGranted = false;
+    File path = new File(
+            Environment.getExternalStorageDirectory().getAbsolutePath()
+                    +
+                    "/VkTestRecorder"
+    );
 
 
     @Override
@@ -34,34 +46,36 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initViews();
-        if(!isGranted) {
+        if(checkPermission() == false) {
             askPermission();
+            return;
         }
 
         clickOnButton();
 
-    }
 
+       displayFiles();
+    }
 
 
 
     private void initViews() {
         RecordingButton = findViewById(R.id.RecordingButton);
+        NoRecordsText = findViewById(R.id.NoRecordsText);
         recyclerRecords = findViewById(R.id.recyclerRecords);
     }
 
     private void askPermission() {
         Dexter.withContext(this)
                 .withPermissions(
-                        android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        android.Manifest.permission.RECORD_AUDIO
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.RECORD_AUDIO
                 ).withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         if (report.areAllPermissionsGranted()) {
                             Toast.makeText(getApplicationContext(), "Разрешенно", Toast.LENGTH_SHORT).show();
-                            isGranted = true;
                         } else {
                             Toast.makeText(getApplicationContext(), "Разрешите доступ, пожалуйста", Toast.LENGTH_SHORT).show();
                         }
@@ -76,11 +90,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private boolean checkPermission() {
+        int result1 = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int result2 = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int result3 = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO);
+
+        return result1 == PackageManager.PERMISSION_GRANTED &&
+                result2 == PackageManager.PERMISSION_GRANTED &&
+                result3 == PackageManager.PERMISSION_GRANTED;
+    }
+
     private void clickOnButton() {
         RecordingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(isGranted) {
+                if(checkPermission() == true) {
                     Intent intent = new Intent(MainActivity.this, RecordActivity.class);
                     startActivity(intent);
                 }
@@ -90,4 +114,37 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void displayFiles() {
+       // recyclerRecords.setHasFixedSize(true);
+       // recyclerRecords.setLayoutManager(new GridLayoutManager(getApplicationContext(), 1));
+
+        fileList = new ArrayList<>();
+        fileList.addAll(findFile(path));
+
+        if(fileList.size() == 0) {
+            NoRecordsText.setVisibility(View.VISIBLE);
+        }
+        else {
+            adapter = new com.example.audiorecorder1.ForRecyclerView.Adapter(
+                    getApplicationContext(),
+                    fileList
+            );
+            recyclerRecords.setAdapter(adapter);
+        }
+
+    }
+
+    public ArrayList<File> findFile(File file) {
+        ArrayList<File> arrayList = new ArrayList<>();
+        File[] files = file.listFiles();
+        for(File singleFile: files) {
+            arrayList.add(singleFile);
+        }
+
+        return arrayList;
+    }
+
+
+
 }

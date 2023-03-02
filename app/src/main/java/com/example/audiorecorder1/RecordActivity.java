@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
@@ -47,7 +48,6 @@ public class RecordActivity extends AppCompatActivity {
     private MediaRecorder recorder;
     boolean isRecording;
 
-    private String RecordName;
     File path = new File(
             Environment.getExternalStorageDirectory().getAbsolutePath()
                     +
@@ -64,7 +64,8 @@ public class RecordActivity extends AppCompatActivity {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
         String date = format.format(new Date());
-        giveName();
+
+        //giveName();
         fileName = path + "/recording_" + date + ".arm";
 
         if(!path.exists()) {
@@ -81,7 +82,6 @@ public class RecordActivity extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(getApplicationContext(), R.string.toast_cant_recording, Toast.LENGTH_SHORT).show();
         }
-
 
         stopRecordButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,8 +120,9 @@ public class RecordActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        Log.d("RecordActivity", " до начать запиь");
         recorder.start();
+        Log.d("RecordActivity", " после начала записи");
     }
 
     private void stopRecording() {
@@ -154,7 +155,7 @@ public class RecordActivity extends AppCompatActivity {
         myDialog.setPositiveButton(R.string.Ok_dialog, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                RecordName = nameInput.getText().toString();
+                fileName = nameInput.getText().toString();
             }
         });
 
