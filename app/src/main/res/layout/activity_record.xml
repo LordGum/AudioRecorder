@@ -4,17 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+
+    android:background="#FEFEFE"
     tools:context=".RecordActivity">
 
 
     <pl.droidsonroids.gif.GifImageView
         android:id="@+id/gifLoading"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="400dp"
 
 
-        android:src="@drawable/loading_gif"
+        android:src="@drawable/soul"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

@@ -1,6 +1,7 @@
 package com.example.audiorecorder1;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,12 +16,15 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
+import java.io.File;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private LinearLayout linearLayout;
     private FloatingActionButton RecordingButton;
+    private RecyclerView recyclerRecords;
+    private List<File> fileList;
+
     boolean isGranted = false;
 
 
@@ -34,26 +38,16 @@ public class MainActivity extends AppCompatActivity {
             askPermission();
         }
 
-        RecordingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(isGranted) {
-                    Intent intent = new Intent(MainActivity.this, RecordActivity.class);
-                    startActivity(intent);
-                }
-                else {
-                    askPermission();
-                }
-            }
-        });
+        clickOnButton();
+
     }
 
 
 
 
     private void initViews() {
-        linearLayout = findViewById(R.id.linearLayout);
         RecordingButton = findViewById(R.id.RecordingButton);
+        recyclerRecords = findViewById(R.id.recyclerRecords);
     }
 
     private void askPermission() {
@@ -80,5 +74,20 @@ public class MainActivity extends AppCompatActivity {
                 }).check();
 
 
+    }
+
+    private void clickOnButton() {
+        RecordingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isGranted) {
+                    Intent intent = new Intent(MainActivity.this, RecordActivity.class);
+                    startActivity(intent);
+                }
+                else {
+                    askPermission();
+                }
+            }
+        });
     }
 }

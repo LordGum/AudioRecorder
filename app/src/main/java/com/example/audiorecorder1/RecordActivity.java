@@ -1,16 +1,20 @@
 package com.example.audiorecorder1;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +47,7 @@ public class RecordActivity extends AppCompatActivity {
     private MediaRecorder recorder;
     boolean isRecording;
 
+    private String RecordName;
     File path = new File(
             Environment.getExternalStorageDirectory().getAbsolutePath()
                     +
@@ -59,8 +64,9 @@ public class RecordActivity extends AppCompatActivity {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
         String date = format.format(new Date());
-
+        giveName();
         fileName = path + "/recording_" + date + ".arm";
+
         if(!path.exists()) {
             // этот метод создает папку
             path.mkdirs();
@@ -75,6 +81,8 @@ public class RecordActivity extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(getApplicationContext(), R.string.toast_cant_recording, Toast.LENGTH_SHORT).show();
         }
+
+
         stopRecordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,6 +91,7 @@ public class RecordActivity extends AppCompatActivity {
                     timeRecord.setBase(SystemClock.elapsedRealtime());
                     timeRecord.stop();
                     isRecording = false;
+
 
                     Intent intent = new Intent(RecordActivity.this, MainActivity.class);
                     startActivity(intent);
@@ -132,6 +141,34 @@ public class RecordActivity extends AppCompatActivity {
             Intent intent = new Intent(RecordActivity.this, MainActivity.class);
             startActivity(intent);
         }
+    }
+
+    private void giveName() {
+        AlertDialog.Builder myDialog = new AlertDialog.Builder(RecordActivity.this);
+        myDialog.setTitle(R.string.edit_text_dialog);
+
+        final EditText nameInput = new EditText(RecordActivity.this);
+        nameInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        myDialog.setView(nameInput);
+
+        myDialog.setPositiveButton(R.string.Ok_dialog, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                RecordName = nameInput.getText().toString();
+            }
+        });
+
+        myDialog.setNegativeButton(R.string.cancel_dialog, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+
+                Intent intent = new Intent(RecordActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        myDialog.show();
     }
 
 

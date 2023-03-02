@@ -6,26 +6,35 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/NoRecordsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/no_records_text"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerRecords"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-        <LinearLayout
-            android:id="@+id/linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerRecords"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/custom_item"
+        />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/RecordingButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
+        android:contentDescription="@string/recording_button_description"
         android:src="@drawable/ic_start_recording"
         app:backgroundTint="@color/new_blue"
-        android:contentDescription="@string/recording_button_description"
         app:fabCustomSize="90dp"
-        android:layout_marginBottom="50dp"
 
 
         app:layout_constraintBottom_toBottomOf="parent"

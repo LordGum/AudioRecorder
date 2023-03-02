@@ -4,5 +4,20 @@
 
     <string name="toast_cant_recording">Не получается начать запись :(</string>
     <string name="toast_to_stop_recording">Сначала остановите запись</string>
+    <string name="play_record_image">Кнопка для начала прослушивания записи</string>
+    <string name="text">Великие цитаты Виктора Валентиновича</string>
+    <string name="date_of_record">Сегодня в 12:51</string>
+    <string name="no_records_text">Нет записей</string>
+    <string name="current_time_0_00">0:00 / 5:32</string>
+    <string name="prev_record_description">Перейти к предыдущей записи</string>
+    <string name="stop_record_description">Остановть запись</string>
+    <string name="next_record_description">Перейти к следующей записи</string>
+    <string name="the_night_we_met">The night we met</string>
+    <string name="time_0_00_scrolling">0:00</string>
+    <string name="time_3_29_scrolling">3:29</string>
+    <string name="edit_text_dialog">Назовите эту запись</string>
+
+    <string name="Ok_dialog">Ok</string>
+    <string name="cancel_dialog">Отмена</string>
 
 </resources>

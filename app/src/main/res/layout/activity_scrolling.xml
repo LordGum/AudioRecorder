@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ScrollingActivity">
+
+
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/gif_of_record"
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+
+        android:src="@drawable/img"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="175dp"
+
+        android:src="@drawable/ic_music_note" />
+
+    <TextView
+        android:id="@+id/night_we_met"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/gif_of_record"
+        android:gravity="center_horizontal"
+        android:text="@string/the_night_we_met"
+        android:textSize="40sp"
+        android:textStyle="bold" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/night_we_met"
+        android:layout_marginTop="20dp">
+
+        <ImageView
+            android:id="@+id/pause_image"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_centerHorizontal="true"
+            android:contentDescription="@string/stop_record_description"
+            android:src="@drawable/ic_pause_scrolling_activity" />
+
+        <ImageView
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_marginEnd="20dp"
+            android:layout_toStartOf="@+id/pause_image"
+            android:contentDescription="@string/prev_record_description"
+            android:src="@drawable/ic__previous" />
+
+        <ImageView
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_marginStart="20dp"
+            android:layout_toEndOf="@+id/pause_image"
+            android:contentDescription="@string/next_record_description"
+            android:src="@drawable/ic_next" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_below="@+id/pause_image"
+            android:layout_margin="8dp"
+            android:progress="33" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/seekBar"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="30dp"
+            android:text="@string/time_0_00_scrolling"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/seekBar"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="30dp"
+            android:text="@string/time_3_29_scrolling"
+            android:textSize="20sp" />
+    </RelativeLayout>
+
+</RelativeLayout>
