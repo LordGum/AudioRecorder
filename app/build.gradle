@@ -51,4 +51,9 @@ dependencies {
 
     //для красивого удаления свайпом
     implementation 'it.xabaras.android:recyclerview-swipedecorator:1.4'
+
+    //красивая визуализация звука
+    //  implementation 'com.gauravk.audiovisualizer:audiovisualizer:0.9.2'
+    // почему то не работает TODO почему не работает, разобраться
+
 }

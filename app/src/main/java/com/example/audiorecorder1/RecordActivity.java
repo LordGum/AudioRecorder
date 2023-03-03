@@ -237,4 +237,25 @@ public class RecordActivity extends AppCompatActivity {
         thread2.start();
     }
 
+    private String durationTime(Long time) {
+
+        String sec = String.valueOf((time / 1000) % 60);
+        String min = String.valueOf((time / 60_000) % 60);
+        String hour = String.valueOf((time / 3_600_000));
+
+        if(min.length() < 2) {
+            min = "0" + min;
+        }
+        if(sec.length() < 2) {
+            sec = "0" + sec;
+        }
+
+        if(hour.equals("0")) {
+            return min + ":" + sec;
+        }
+        else {
+            return hour + ":" + min + ":" + sec;
+        }
+    }
+
 }

@@ -27,6 +27,7 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private com.example.audiorecorder1.ForRecyclerView.Adapter adapter;
     private RecordDatabase recordDatabase;
+    private List<Record> recordList;
 
     private Handler handler = new Handler(Looper.myLooper());
 
@@ -52,15 +54,13 @@ public class MainActivity extends AppCompatActivity {
             askPermission();
         }
 
-        clickOnButton();
-
         adapter = new com.example.audiorecorder1.ForRecyclerView.Adapter();
         recyclerRecords.setAdapter(adapter);
         recordDatabase = RecordDatabase.getInstance(getApplication());
 
+        clickOnButton();
         isEmpty();
         swipeDelete();
-
         clickOnRecord();
 
     }
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                List<Record> recordList = recordDatabase.recordsDao().getRecords();
+                recordList = recordDatabase.recordsDao().getRecords();
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -230,10 +230,33 @@ public class MainActivity extends AppCompatActivity {
         adapter.setOnRecordClickListener(new Adapter.OnRecordClickListener() {
             @Override
             public void onRecordClick(Record record) {
+
                 Intent intent = new Intent(MainActivity.this, ScrollingActivity.class);
-                startActivity(intent);
+                int position = findPosition(record);
+                if(position != -1) {
+                    intent.putExtra("position", position);
+                    //intent.putExtra("recordList", recordList);
+                    startActivity(intent);
+                }
+                else {
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "ОШИБКА В ПОИСКЕ ПОЗИЦИИ",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
             }
         });
+    }
+
+    private int findPosition(Record record) {
+        for(int i=0; i<adapter.getRecordList().size(); i++) {
+            Record otherRecord = adapter.getRecordList().get(i);
+            if(record.getId() == otherRecord.getId()) {
+                return i;
+            }
+        }
+        return -1;
     }
 
 
