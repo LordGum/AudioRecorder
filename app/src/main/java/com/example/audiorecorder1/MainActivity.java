@@ -1,22 +1,24 @@
 package com.example.audiorecorder1;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.audiorecorder1.ForRecyclerView.Adapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
@@ -25,17 +27,19 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity{
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
+
+public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton RecordingButton;
     private TextView NoRecordsText;
     private RecyclerView recyclerRecords;
-    private com.example.audiorecorder1.ForRecyclerView.Adapter adapter;
 
+    private com.example.audiorecorder1.ForRecyclerView.Adapter adapter;
     private RecordDatabase recordDatabase;
+
     private Handler handler = new Handler(Looper.myLooper());
 
     @Override
@@ -44,16 +48,22 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
 
         initViews();
-        if(checkPermission() == false) {
+        if (checkPermission() == false) {
             askPermission();
-            return;
         }
 
         clickOnButton();
 
-        displayFiles();
-    }
+        adapter = new com.example.audiorecorder1.ForRecyclerView.Adapter();
+        recyclerRecords.setAdapter(adapter);
+        recordDatabase = RecordDatabase.getInstance(getApplication());
 
+        isEmpty();
+        swipeDelete();
+
+        clickOnRecord();
+
+    }
 
 
     private void initViews() {
@@ -72,9 +82,17 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         if (report.areAllPermissionsGranted()) {
-                            Toast.makeText(getApplicationContext(), "Разрешенно", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(
+                                    getApplicationContext(),
+                                    "Разрешенно",
+                                    Toast.LENGTH_SHORT
+                            ).show();
                         } else {
-                            Toast.makeText(getApplicationContext(), "Разрешите доступ, пожалуйста", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(
+                                    getApplicationContext(),
+                                    "Разрешите доступ, пожалуйста",
+                                    Toast.LENGTH_SHORT
+                            ).show();
                         }
                     }
 
@@ -101,34 +119,24 @@ public class MainActivity extends AppCompatActivity{
         RecordingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(checkPermission() == true) {
+                if (checkPermission() == true) {
                     Intent intent = new Intent(MainActivity.this, RecordActivity.class);
                     startActivity(intent);
-                }
-                else {
+                } else {
                     askPermission();
                 }
             }
         });
     }
 
-    private void displayFiles() {
-        adapter = new com.example.audiorecorder1.ForRecyclerView.Adapter();
-        recyclerRecords.setAdapter(adapter);
-
-        recordDatabase = RecordDatabase.getInstance(getApplication());
-
-        /*
-        if(recordDatabase == null) {
+    private void isEmpty() {
+        File path = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/VkTestRecorder");
+        File[] files = path.listFiles();
+        if (files == null) {
             NoRecordsText.setVisibility(View.VISIBLE);
+        } else {
+            NoRecordsText.setVisibility(View.INVISIBLE);
         }
-        else {
-            adapter = new com.example.audiorecorder1.ForRecyclerView.Adapter();
-            recyclerRecords.setAdapter(adapter);
-
-            recordDatabase = RecordDatabase.getInstance(getApplication());
-        }
-        */
     }
 
     private void ShowNotes() {
@@ -151,6 +159,82 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onResume() {
         super.onResume();
-        ShowNotes();
+        if (checkPermission()) {
+            ShowNotes();
+        }
     }
+
+    private void swipeDelete() {
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
+                new ItemTouchHelper.SimpleCallback(
+                    0,
+                    ItemTouchHelper.RIGHT
+        ) {
+            @Override
+            public boolean onMove(
+                    @NonNull RecyclerView recyclerView,
+                    @NonNull RecyclerView.ViewHolder viewHolder,
+                    @NonNull RecyclerView.ViewHolder target
+            ) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+
+                int position = viewHolder.getAdapterPosition();
+                Record record = adapter.getRecordList().get(position);
+
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        recordDatabase.recordsDao().remove(record.getId());
+                        File file = new File(record.getRecPath());
+                        if(file.exists()) {
+                            file.delete();
+                        }
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                ShowNotes();
+                            }
+                        });
+                    }
+                });
+                thread.start();
+            }
+
+            @Override
+            public void onChildDraw(@NonNull Canvas c,
+                                    @NonNull RecyclerView recyclerView,
+                                    @NonNull RecyclerView.ViewHolder viewHolder,
+                                    float dX, float dY, int actionState, boolean isCurrentlyActive) {
+
+                new RecyclerViewSwipeDecorator.Builder(MainActivity.this, c,
+                        recyclerRecords,viewHolder, dX, dY, actionState, isCurrentlyActive)
+                        .addSwipeRightBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.red))
+                        .addSwipeRightActionIcon(R.drawable.ic_delete)
+                        .create()
+                        .decorate();
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            }}
+        );
+
+        itemTouchHelper.attachToRecyclerView(recyclerRecords);
+
+    }
+
+    private void clickOnRecord() {
+        adapter.setOnRecordClickListener(new Adapter.OnRecordClickListener() {
+            @Override
+            public void onRecordClick(Record record) {
+                Intent intent = new Intent(MainActivity.this, ScrollingActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+
 }

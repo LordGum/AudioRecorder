@@ -46,7 +46,9 @@ dependencies {
 
     //библиотека для Room
     def room_version = "2.5.0"
-
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
+
+    //для красивого удаления свайпом
+    implementation 'it.xabaras.android:recyclerview-swipedecorator:1.4'
 }

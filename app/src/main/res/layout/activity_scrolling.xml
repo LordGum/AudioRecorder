@@ -50,6 +50,7 @@
             android:src="@drawable/ic_pause_scrolling_activity" />
 
         <ImageView
+            android:id="@+id/previousImage"
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:layout_marginEnd="20dp"
@@ -58,6 +59,7 @@
             android:src="@drawable/ic__previous" />
 
         <ImageView
+            android:id="@+id/nextImage"
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:layout_marginStart="20dp"
@@ -70,10 +72,14 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_below="@+id/pause_image"
-            android:layout_margin="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
             android:progress="33" />
 
         <TextView
+            android:id="@+id/currentTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/seekBar"
@@ -83,6 +89,7 @@
             android:textSize="20sp" />
 
         <TextView
+            android:id="@+id/durationTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/seekBar"

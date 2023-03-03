@@ -12,8 +12,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.audiorecorder1.R;
 import com.example.audiorecorder1.Record;
+import com.example.audiorecorder1.RecordDatabase;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,10 +26,19 @@ import java.util.Locale;
 
 public class Adapter extends RecyclerView.Adapter<RecyclerViewHolder> {
     private List<Record> recordList = new ArrayList<>();
+    private OnRecordClickListener onRecordClickListener;
+
+    public void setOnRecordClickListener(OnRecordClickListener onRecordClickListener) {
+        this.onRecordClickListener = onRecordClickListener;
+    }
 
     public void setRecordList(List<Record> recordList) {
         this.recordList = recordList;
         notifyDataSetChanged();
+    }
+
+    public List<Record> getRecordList() {
+        return new ArrayList<>(recordList);
     }
 
     @NonNull
@@ -46,10 +57,17 @@ public class Adapter extends RecyclerView.Adapter<RecyclerViewHolder> {
         Record record = recordList.get(position);
         File file = new File(record.getRecPath());
 
-        holder.name.setText(record.getRecName());
-        holder.dateBorn.setText(timeTag(file));
-        Long time = Long.parseLong(record.getRecDuration()) ;
-        holder.time.setText(durationTime(time));
+        if(file.exists() && file.length() != 0) {
+            holder.name.setText(record.getRecName());
+            holder.dateBorn.setText(timeTag(file));
+            Long time = Long.parseLong(record.getRecDuration());
+            holder.time.setText(durationTime(time));
+        }
+        else if (!file.exists() && file.length() == 0) {
+            removeRecord(record);
+        }
+
+        clickOnItem(holder, record);
 
     }
 
@@ -90,4 +108,25 @@ public class Adapter extends RecyclerView.Adapter<RecyclerViewHolder> {
         }
     }
 
+    private void removeRecord(Record record) {
+        int position = recordList.indexOf(record);
+        recordList.remove(record);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, getItemCount());
+    }
+
+    private void clickOnItem(@NonNull RecyclerViewHolder holder, Record record) {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onRecordClickListener.onRecordClick(record);
+            }
+        });
+    }
+
+    public interface OnRecordClickListener {
+        void onRecordClick(Record record);
+    }
+
 }
+
