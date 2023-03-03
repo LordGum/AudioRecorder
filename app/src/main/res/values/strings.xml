@@ -19,5 +19,6 @@
 
     <string name="Ok_dialog">Ok</string>
     <string name="cancel_dialog">Отмена</string>
+    <string name="give_name_toast">Сначала назовите запись</string>
 
 </resources>

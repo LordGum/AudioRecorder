@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.TextView;
@@ -32,13 +34,9 @@ public class MainActivity extends AppCompatActivity{
     private TextView NoRecordsText;
     private RecyclerView recyclerRecords;
     private com.example.audiorecorder1.ForRecyclerView.Adapter adapter;
-    private List<File> fileList;
-    File path = new File(
-            Environment.getExternalStorageDirectory().getAbsolutePath()
-                    +
-                    "/VkTestRecorder"
-    );
 
+    private RecordDatabase recordDatabase;
+    private Handler handler = new Handler(Looper.myLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +51,7 @@ public class MainActivity extends AppCompatActivity{
 
         clickOnButton();
 
-
-       displayFiles();
+        displayFiles();
     }
 
 
@@ -116,35 +113,44 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void displayFiles() {
-       // recyclerRecords.setHasFixedSize(true);
-       // recyclerRecords.setLayoutManager(new GridLayoutManager(getApplicationContext(), 1));
+        adapter = new com.example.audiorecorder1.ForRecyclerView.Adapter();
+        recyclerRecords.setAdapter(adapter);
 
-        fileList = new ArrayList<>();
-        fileList.addAll(findFile(path));
+        recordDatabase = RecordDatabase.getInstance(getApplication());
 
-        if(fileList.size() == 0) {
+        /*
+        if(recordDatabase == null) {
             NoRecordsText.setVisibility(View.VISIBLE);
         }
         else {
-            adapter = new com.example.audiorecorder1.ForRecyclerView.Adapter(
-                    getApplicationContext(),
-                    fileList
-            );
+            adapter = new com.example.audiorecorder1.ForRecyclerView.Adapter();
             recyclerRecords.setAdapter(adapter);
-        }
 
+            recordDatabase = RecordDatabase.getInstance(getApplication());
+        }
+        */
     }
 
-    public ArrayList<File> findFile(File file) {
-        ArrayList<File> arrayList = new ArrayList<>();
-        File[] files = file.listFiles();
-        for(File singleFile: files) {
-            arrayList.add(singleFile);
-        }
+    private void ShowNotes() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<Record> recordList = recordDatabase.recordsDao().getRecords();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.setRecordList(recordList);
+                    }
+                });
 
-        return arrayList;
+            }
+        });
+        thread.start();
     }
 
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ShowNotes();
+    }
 }

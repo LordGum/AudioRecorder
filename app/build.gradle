@@ -43,4 +43,10 @@ dependencies {
 
     //библиотека dexter
     implementation 'com.karumi:dexter:6.2.3'
+
+    //библиотека для Room
+    def room_version = "2.5.0"
+
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
 }

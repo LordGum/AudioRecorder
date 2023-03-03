@@ -6,9 +6,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.text.InputType;
 import android.util.Log;
@@ -45,8 +48,13 @@ public class RecordActivity extends AppCompatActivity {
     private GifImageView gifLoading;
 
     private static String fileName;
+    private String recordName = "";
     private MediaRecorder recorder;
-    boolean isRecording;
+    private boolean isRecording;
+    private boolean canStart;
+
+    private RecordDatabase recordDatabase;
+    private Handler handler = new Handler(Looper.myLooper());
 
     File path = new File(
             Environment.getExternalStorageDirectory().getAbsolutePath()
@@ -60,12 +68,12 @@ public class RecordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_record);
 
         initView();
+        recordDatabase = RecordDatabase.getInstance(getApplication());
         isRecording = false;
 
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
         String date = format.format(new Date());
 
-        //giveName();
         fileName = path + "/recording_" + date + ".arm";
 
         if(!path.exists()) {
@@ -73,14 +81,21 @@ public class RecordActivity extends AppCompatActivity {
             path.mkdirs();
         }
 
-        try {
-            startRecording();
-            timeRecord.setBase(SystemClock.elapsedRealtime());
-            timeRecord.start();
-            isRecording = true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), R.string.toast_cant_recording, Toast.LENGTH_SHORT).show();
+
+        if(true) {
+            Log.d("RecordActivity", "начинаем запись");
+            try {
+                startRecording();
+                timeRecord.setBase(SystemClock.elapsedRealtime());
+                timeRecord.start();
+                isRecording = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), R.string.toast_cant_recording, Toast.LENGTH_SHORT).show();
+            }
+        }
+        else {
+            Log.d("RecordActivity", "не можем начать ");
         }
 
         stopRecordButton.setOnClickListener(new View.OnClickListener() {
@@ -92,9 +107,15 @@ public class RecordActivity extends AppCompatActivity {
                     timeRecord.stop();
                     isRecording = false;
 
+                    giveName();
 
-                    Intent intent = new Intent(RecordActivity.this, MainActivity.class);
-                    startActivity(intent);
+                }
+                else {
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "ОШИБКА. Запись не была начата",
+                            Toast.LENGTH_SHORT
+                    ).show();
                 }
             }
         });
@@ -145,8 +166,10 @@ public class RecordActivity extends AppCompatActivity {
     }
 
     private void giveName() {
+        Log.d("RecordActivity", "зашли в giveName");
         AlertDialog.Builder myDialog = new AlertDialog.Builder(RecordActivity.this);
         myDialog.setTitle(R.string.edit_text_dialog);
+        myDialog.setCancelable(false);
 
         final EditText nameInput = new EditText(RecordActivity.this);
         nameInput.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -155,9 +178,27 @@ public class RecordActivity extends AppCompatActivity {
         myDialog.setPositiveButton(R.string.Ok_dialog, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                fileName = nameInput.getText().toString();
+
+                if(nameInput.getText().toString().equals("")) {
+                    Toast.makeText(
+                            getApplicationContext(),
+                            R.string.give_name_toast,
+                            Toast.LENGTH_SHORT
+                    ).show();
+                    giveName();
+                }
+                else {
+                    recordName = nameInput.getText().toString();
+                    canStart = true;
+
+                    addRecord();
+
+                    Intent intent = new Intent(RecordActivity.this, MainActivity.class);
+                    startActivity(intent);
+                }
             }
         });
+
 
         myDialog.setNegativeButton(R.string.cancel_dialog, new DialogInterface.OnClickListener() {
             @Override
@@ -169,8 +210,31 @@ public class RecordActivity extends AppCompatActivity {
             }
         });
 
+
         myDialog.show();
     }
 
+    private void addRecord() {
+
+        MediaMetadataRetriever mediaMetadataRetriever= new MediaMetadataRetriever();
+        mediaMetadataRetriever.setDataSource(fileName);
+        String duration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+
+        Record record = new Record(recordName, duration, fileName);
+
+        Thread thread2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                recordDatabase.recordsDao().add(record);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        finish(); //закрывает AddNoteActivity (те возвращаемся на основной экран)
+                    }
+                });
+            }
+        });
+        thread2.start();
+    }
 
 }
