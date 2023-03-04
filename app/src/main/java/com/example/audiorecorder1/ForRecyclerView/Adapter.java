@@ -1,8 +1,5 @@
 package com.example.audiorecorder1.ForRecyclerView;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,15 +9,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.audiorecorder1.R;
 import com.example.audiorecorder1.Record;
-import com.example.audiorecorder1.RecordDatabase;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -62,6 +56,7 @@ public class Adapter extends RecyclerView.Adapter<RecyclerViewHolder> {
             holder.dateBorn.setText(timeTag(file));
             Long time = Long.parseLong(record.getRecDuration());
             holder.time.setText(durationTime(time));
+            holder.line.setProgress(0);
         }
         else if (!file.exists() && file.length() == 0) {
             removeRecord(record);

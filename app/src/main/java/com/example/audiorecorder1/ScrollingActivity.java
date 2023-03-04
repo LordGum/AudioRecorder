@@ -1,21 +1,22 @@
 package com.example.audiorecorder1;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import java.io.File;
 import java.util.List;
@@ -26,6 +27,8 @@ public class ScrollingActivity extends AppCompatActivity {
     private ImageView pauseImage, nextImage, previousImage;
     private ImageView gifImage, noteImage;
     private SeekBar seekBar;
+
+    private ImageView playImage;
 
     private int songPosition;
     static MediaPlayer mediaPlayer;
@@ -45,13 +48,14 @@ public class ScrollingActivity extends AppCompatActivity {
             mediaPlayer.release();
         }
 
-        setResources_startMediaPlayer();
+        setResources();
         startAnimation();
 
         clickPlayButton();
         songEnd_GoToNext();
         clickNextButton();
         clickPreviousButton();
+
 
     }
 
@@ -89,7 +93,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
     }
 
-    private void setResources_startMediaPlayer() {
+    private void setResources() {
         Intent intent = getIntent();
         songPosition = intent.getIntExtra("position", 0);
         if(songPosition > 0) {
@@ -214,7 +218,7 @@ public class ScrollingActivity extends AppCompatActivity {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                //nextImage.performClick();
+
                 pauseImage.setBackgroundResource(R.drawable.ic_play_scrolling_activity);
                 mediaPlayer.pause();
             }
@@ -224,9 +228,8 @@ public class ScrollingActivity extends AppCompatActivity {
     private void workWithSeekbar() {
         //ниже работаю с seekBar,те обновляю
         seekBar = findViewById(R.id.seekBar);
-        Thread updateSeekbar;
 
-        updateSeekbar = new Thread() {
+        Thread updateSeekbar = new Thread() {
             @Override
             public void run() {
                 int totalDuration = mediaPlayer.getDuration();
@@ -277,4 +280,6 @@ public class ScrollingActivity extends AppCompatActivity {
             }
         }, delay);
     }
+
+
 }

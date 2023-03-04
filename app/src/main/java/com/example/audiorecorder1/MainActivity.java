@@ -1,5 +1,6 @@
 package com.example.audiorecorder1;
 
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,6 +10,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +29,6 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.List;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
@@ -38,11 +39,14 @@ public class MainActivity extends AppCompatActivity {
     private TextView NoRecordsText;
     private RecyclerView recyclerRecords;
 
+    private ImageView playImage;
+
     private com.example.audiorecorder1.ForRecyclerView.Adapter adapter;
     private RecordDatabase recordDatabase;
     private List<Record> recordList;
 
     private Handler handler = new Handler(Looper.myLooper());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -234,8 +238,19 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, ScrollingActivity.class);
                 int position = findPosition(record);
                 if(position != -1) {
+                    int previousRecordPosition = fakeDatabase.getInstance().getPreviousRecordPosition();
+
+                    RecyclerView.ViewHolder viewHolder = recyclerRecords.findViewHolderForAdapterPosition(position);
+                    playImage = viewHolder.itemView.findViewById(R.id.imageButton);
+                    playImage.setBackgroundResource(R.drawable.ic_pause);
+
+                    RecyclerView.ViewHolder viewHolder1 = recyclerRecords.findViewHolderForAdapterPosition(previousRecordPosition);
+                    playImage = viewHolder1.itemView.findViewById(R.id.imageButton);
+                    playImage.setBackgroundResource(R.drawable.ic_play);
+
+                    fakeDatabase.getInstance().setPreviousRecordPosition(position);
+
                     intent.putExtra("position", position);
-                    //intent.putExtra("recordList", recordList);
                     startActivity(intent);
                 }
                 else {
@@ -259,6 +274,41 @@ public class MainActivity extends AppCompatActivity {
         return -1;
     }
 
+    /*
+    private void workWithProgressLine(int songPosition, String totalTime1) {
+
+
+        RecyclerView.ViewHolder viewHolder = recyclerRecords.findViewHolderForAdapterPosition(songPosition);
+
+        line = viewHolder.itemView.findViewById(R.id.line);
+        int currentTimeProgress = 0;
+        int totalTime = Integer.parseInt(totalTime1);
+        line.setIndeterminate(false);
+        line.setProgress(66);
+        /*
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            int progress = 0;
+
+            @Override
+            public void run() {
+                progress = ((currentTimeProgress + 1000) / totalTime) * 100;
+
+                line.setProgress(progress);
+                if (progress == 100) {
+                    timer.cancel();
+                }
+            }
+        };
+        timer.schedule(task, 1000, 1000);
+
+
+
+        playImage = viewHolder.itemView.findViewById(R.id.imageButton);
+        playImage.setBackgroundResource(R.drawable.ic_pause);
+
+    }
+    */
 
 
 

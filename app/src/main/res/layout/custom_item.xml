@@ -50,21 +50,32 @@
                 android:id="@+id/currentTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="-4dp"
+                android:layout_marginEnd="4dp"
                 android:layout_centerVertical="true"
                 android:layout_toStartOf="@+id/imageButton"
                 android:text="@string/current_time_0_00" />
 
             <ImageView
                 android:id="@+id/imageButton"
-                android:layout_width="70dp"
-                android:layout_height="60dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:contentDescription="@string/play_record_image"
                 android:padding="8dp"
-                android:src="@drawable/ic_play" />
+                android:background="@drawable/ic_play" />
 
         </RelativeLayout>
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progress="33"
+            app:indicatorColor="@color/new_blue"
+            app:trackColor="@color/gray"
+            android:layout_below="@id/relativeLayout"
+            />
 
 
     </RelativeLayout>

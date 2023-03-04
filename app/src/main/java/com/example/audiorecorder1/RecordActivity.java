@@ -152,6 +152,7 @@ public class RecordActivity extends AppCompatActivity {
         recorder = null;
     }
 
+    @Override
     public void onBackPressed() {
         if(isRecording) {
             Toast.makeText(
