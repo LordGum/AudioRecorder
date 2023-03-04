@@ -7,8 +7,9 @@
     tools:context=".ScrollingActivity">
 
 
-    <pl.droidsonroids.gif.GifImageView
-        android:id="@+id/gif_of_record"
+
+    <ImageView
+        android:id="@+id/gifImage"
         android:layout_width="match_parent"
         android:layout_height="450dp"
 
@@ -18,7 +19,9 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
+
     <ImageView
+        android:id="@+id/noteImage"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_centerHorizontal="true"
@@ -30,7 +33,7 @@
         android:id="@+id/night_we_met"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/gif_of_record"
+        android:layout_below="@id/gifImage"
         android:gravity="center_horizontal"
         android:text="@string/the_night_we_met"
         android:textSize="40sp"
