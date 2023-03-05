@@ -71,7 +71,6 @@ public class ScrollingActivity extends AppCompatActivity {
         nextImage = findViewById(R.id.nextImage);
         previousImage = findViewById(R.id.previousImage);
 
-        gifImage = findViewById(R.id.gifImage);
         noteImage = findViewById(R.id.noteImage);
     }
 
@@ -146,12 +145,11 @@ public class ScrollingActivity extends AppCompatActivity {
     }
 
     private void startAnimation() {
-        ObjectAnimator animator = ObjectAnimator.ofFloat(gifImage, "rotation", 0f, 360f);
-        animator.setDuration(1000);
+
         ObjectAnimator animator1 = ObjectAnimator.ofFloat(noteImage, "rotation", 0f, 360f);
         animator1.setDuration(1000);
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(animator, animator1);
+        animatorSet.playTogether(animator1);
         animatorSet.start();
     }
 

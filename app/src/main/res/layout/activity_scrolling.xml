@@ -7,33 +7,22 @@
     tools:context=".ScrollingActivity">
 
 
-
-    <ImageView
-        android:id="@+id/gifImage"
-        android:layout_width="match_parent"
-        android:layout_height="450dp"
-
-        android:src="@drawable/img"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-
     <ImageView
         android:id="@+id/noteImage"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="175dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
 
-        android:src="@drawable/ic_music_note" />
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="100dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/note" />
 
     <TextView
         android:id="@+id/night_we_met"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/gifImage"
+        android:layout_below="@id/noteImage"
+        android:layout_marginTop="130dp"
         android:gravity="center_horizontal"
         android:text="@string/the_night_we_met"
         android:textSize="40sp"
@@ -104,5 +93,6 @@
 
 
     </RelativeLayout>
+
 
 </RelativeLayout>
