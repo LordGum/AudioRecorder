@@ -1,7 +1,8 @@
 package com.example.audiorecorder1;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.lifecycle.Observer;
+import androidx.room.Database;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -16,9 +17,9 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ScrollingActivity extends AppCompatActivity {
@@ -28,13 +29,10 @@ public class ScrollingActivity extends AppCompatActivity {
     private ImageView gifImage, noteImage;
     private SeekBar seekBar;
 
-    private ImageView playImage;
-
     private int songPosition;
     static MediaPlayer mediaPlayer;
     private List<Record> recordList;
 
-    private RecordDatabase recordDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +41,11 @@ public class ScrollingActivity extends AppCompatActivity {
 
         init();
 
+
+        if(recordList == null) {
+            Log.d("Mistake", "ОШИБКА");
+
+        }
         if(mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
@@ -70,49 +73,37 @@ public class ScrollingActivity extends AppCompatActivity {
 
         gifImage = findViewById(R.id.gifImage);
         noteImage = findViewById(R.id.noteImage);
-
-
-        //ниже получаю recordList из базы данных
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                recordDatabase = RecordDatabase.getInstance(getApplication());
-                recordList = recordDatabase.recordsDao().getRecords();
-                if( recordList == null) {
-                    Log.d("ScrollingActivity", "список пуст, это грустно");
-                }
-            }
-        });
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
     }
 
     private void setResources() {
         Intent intent = getIntent();
         songPosition = intent.getIntExtra("position", 0);
-        if(songPosition > 0) {
-            Log.d("ScrollingActivity", "позиция больше 0");
-        }
-        if(recordList== null) {
-            Log.d("ScrollingActivity", "recordList ПУСТ");
-        }
-        Record record = recordList.get(songPosition);
+        String path = intent.getStringExtra("path");
+        String name = intent.getStringExtra("name");
+        String dur = intent.getStringExtra("duration");
 
-        File file = new File(record.getRecPath());
+        File file = new File(path);
         Uri uri = Uri.parse(file.toString());
 
-        songName.setText(record.getRecName());
-        Long time = Long.parseLong(record.getRecDuration());
+        songName.setText(name);
+        Long time = Long.parseLong(dur);
         durationTime.setText(durationTime(time));
 
         mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
         mediaPlayer.start();
+
+
+
+        Thread thread = new Thread(new Runnable() {
+            RecordDatabase recordDatabase = RecordDatabase.getInstance(getApplication());
+            @Override
+            public void run() {
+                recordList = recordDatabase.recordsDao().getRecordList();
+            }
+        });
+        thread.start();
+
+        //recordList = viewModel.getList();
 
         workWithSeekbar();
     }

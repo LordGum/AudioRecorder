@@ -1,5 +1,6 @@
 package com.example.audiorecorder1;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -10,7 +11,10 @@ import java.util.List;
 public interface RecordsDao {
 
     @Query("SELECT * FROM records")
-    List<Record> getRecords();
+    LiveData<List<Record>> getRecords();
+
+    @Query("SELECT * FROM records")
+    List<Record> getRecordList();
 
     @Insert
     void add(Record record);

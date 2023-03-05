@@ -1,14 +1,12 @@
 package com.example.audiorecorder1;
 
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,10 +41,9 @@ public class MainActivity extends AppCompatActivity {
     private ImageView playImage;
 
     private com.example.audiorecorder1.ForRecyclerView.Adapter adapter;
-    private RecordDatabase recordDatabase;
-    private List<Record> recordList;
+    private MainViewModel viewModel;
 
-    private Handler handler = new Handler(Looper.myLooper());
+
 
 
     @Override
@@ -58,9 +56,16 @@ public class MainActivity extends AppCompatActivity {
             askPermission();
         }
 
+        viewModel = new MainViewModel(getApplication());
         adapter = new com.example.audiorecorder1.ForRecyclerView.Adapter();
         recyclerRecords.setAdapter(adapter);
-        recordDatabase = RecordDatabase.getInstance(getApplication());
+
+        viewModel.getRecords().observe(this, new Observer<List<Record>>() {
+            @Override
+            public void onChanged(List<Record> recordList) {
+                adapter.setRecordList(recordList);
+            }
+        });
 
         clickOnButton();
         isEmpty();
@@ -143,31 +148,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void ShowNotes() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                recordList = recordDatabase.recordsDao().getRecords();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.setRecordList(recordList);
-                    }
-                });
-
-            }
-        });
-        thread.start();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (checkPermission()) {
-            ShowNotes();
-        }
-    }
-
     private void swipeDelete() {
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
@@ -186,27 +166,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
                 int position = viewHolder.getAdapterPosition();
                 Record record = adapter.getRecordList().get(position);
-
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        recordDatabase.recordsDao().remove(record.getId());
-                        File file = new File(record.getRecPath());
-                        if(file.exists()) {
-                            file.delete();
-                        }
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                ShowNotes();
-                            }
-                        });
-                    }
-                });
-                thread.start();
+                viewModel.remove(record);
+                File file = new File(record.getRecPath());
+                if(file.exists()) {
+                    file.delete();
+                }
             }
 
             @Override
@@ -244,13 +210,18 @@ public class MainActivity extends AppCompatActivity {
                     playImage = viewHolder.itemView.findViewById(R.id.imageButton);
                     playImage.setBackgroundResource(R.drawable.ic_pause);
 
-                    RecyclerView.ViewHolder viewHolder1 = recyclerRecords.findViewHolderForAdapterPosition(previousRecordPosition);
-                    playImage = viewHolder1.itemView.findViewById(R.id.imageButton);
-                    playImage.setBackgroundResource(R.drawable.ic_play);
+                    if(position != previousRecordPosition) {
+                        RecyclerView.ViewHolder viewHolder1 = recyclerRecords.findViewHolderForAdapterPosition(previousRecordPosition);
+                        playImage = viewHolder1.itemView.findViewById(R.id.imageButton);
+                        playImage.setBackgroundResource(R.drawable.ic_play);
+                    }
 
                     fakeDatabase.getInstance().setPreviousRecordPosition(position);
 
                     intent.putExtra("position", position);
+                    intent.putExtra("path", record.getRecPath());
+                    intent.putExtra("duration", record.getRecDuration());
+                    intent.putExtra("name", record.getRecName());
                     startActivity(intent);
                 }
                 else {
@@ -274,41 +245,7 @@ public class MainActivity extends AppCompatActivity {
         return -1;
     }
 
-    /*
-    private void workWithProgressLine(int songPosition, String totalTime1) {
 
-
-        RecyclerView.ViewHolder viewHolder = recyclerRecords.findViewHolderForAdapterPosition(songPosition);
-
-        line = viewHolder.itemView.findViewById(R.id.line);
-        int currentTimeProgress = 0;
-        int totalTime = Integer.parseInt(totalTime1);
-        line.setIndeterminate(false);
-        line.setProgress(66);
-        /*
-        Timer timer = new Timer();
-        TimerTask task = new TimerTask() {
-            int progress = 0;
-
-            @Override
-            public void run() {
-                progress = ((currentTimeProgress + 1000) / totalTime) * 100;
-
-                line.setProgress(progress);
-                if (progress == 100) {
-                    timer.cancel();
-                }
-            }
-        };
-        timer.schedule(task, 1000, 1000);
-
-
-
-        playImage = viewHolder.itemView.findViewById(R.id.imageButton);
-        playImage.setBackgroundResource(R.drawable.ic_pause);
-
-    }
-    */
 
 
 

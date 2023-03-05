@@ -51,10 +51,9 @@ public class RecordActivity extends AppCompatActivity {
     private String recordName = "";
     private MediaRecorder recorder;
     private boolean isRecording;
-    private boolean canStart;
 
-    private RecordDatabase recordDatabase;
-    private Handler handler = new Handler(Looper.myLooper());
+    private MainViewModel viewModel;
+
 
     File path = new File(
             Environment.getExternalStorageDirectory().getAbsolutePath()
@@ -68,7 +67,7 @@ public class RecordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_record);
 
         initView();
-        recordDatabase = RecordDatabase.getInstance(getApplication());
+        viewModel = new MainViewModel(getApplication());
         isRecording = false;
 
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
@@ -98,27 +97,7 @@ public class RecordActivity extends AppCompatActivity {
             Log.d("RecordActivity", "не можем начать ");
         }
 
-        stopRecordButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(isRecording) {
-                    stopRecording();
-                    timeRecord.setBase(SystemClock.elapsedRealtime());
-                    timeRecord.stop();
-                    isRecording = false;
-
-                    giveName();
-
-                }
-                else {
-                    Toast.makeText(
-                            getApplicationContext(),
-                            "ОШИБКА. Запись не была начата",
-                            Toast.LENGTH_SHORT
-                    ).show();
-                }
-            }
-        });
+        clickStopButton();
 
 
     }
@@ -150,6 +129,30 @@ public class RecordActivity extends AppCompatActivity {
         recorder.stop();
         recorder.release();
         recorder = null;
+    }
+
+    private void clickStopButton() {
+        stopRecordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isRecording) {
+                    stopRecording();
+                    timeRecord.setBase(SystemClock.elapsedRealtime());
+                    timeRecord.stop();
+                    isRecording = false;
+
+                    giveName();
+
+                }
+                else {
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "ОШИБКА. Запись не была начата",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            }
+        });
     }
 
     @Override
@@ -190,7 +193,6 @@ public class RecordActivity extends AppCompatActivity {
                 }
                 else {
                     recordName = nameInput.getText().toString();
-                    canStart = true;
 
                     addRecord();
 
@@ -222,41 +224,7 @@ public class RecordActivity extends AppCompatActivity {
         String duration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
 
         Record record = new Record(recordName, duration, fileName);
-
-        Thread thread2 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                recordDatabase.recordsDao().add(record);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        finish(); //закрывает AddNoteActivity (те возвращаемся на основной экран)
-                    }
-                });
-            }
-        });
-        thread2.start();
-    }
-
-    private String durationTime(Long time) {
-
-        String sec = String.valueOf((time / 1000) % 60);
-        String min = String.valueOf((time / 60_000) % 60);
-        String hour = String.valueOf((time / 3_600_000));
-
-        if(min.length() < 2) {
-            min = "0" + min;
-        }
-        if(sec.length() < 2) {
-            sec = "0" + sec;
-        }
-
-        if(hour.equals("0")) {
-            return min + ":" + sec;
-        }
-        else {
-            return hour + ":" + min + ":" + sec;
-        }
+        viewModel.add(record);
     }
 
 }

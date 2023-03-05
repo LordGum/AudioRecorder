@@ -63,7 +63,6 @@ public class Adapter extends RecyclerView.Adapter<RecyclerViewHolder> {
         }
 
         clickOnItem(holder, record);
-
     }
 
     @Override
